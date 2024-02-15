@@ -109,20 +109,19 @@ index_schema = {
 }
 
 
-def _get_openai_embedded_model() -> OpenAIEmbeddings:
-    """Add proxy to embedded models if proxy url"""
-    proxy_url = os.environ["PROXY_URL"]
-    if proxy_url is not None or proxy_url != "":
-        http_client = httpx.AsyncClient(proxies=proxy_url)
-        return OpenAIEmbeddings(http_client=http_client)
-    else:
-        return OpenAIEmbeddings()
+
+proxy_url = os.environ["PROXY_URL"]
+if proxy_url is not None or proxy_url != "":
+    http_client = httpx.AsyncClient(proxies=proxy_url)
+    embedded = OpenAIEmbeddings(http_client=http_client)
+else:
+    embedded = OpenAIEmbeddings()
 
 
 vstore = Redis(
     redis_url=os.environ["REDIS_URL"],
     index_name="opengpts",
-    embedding=_get_openai_embedded_model(),
+    embedding=embedded,
     index_schema=index_schema,
 )
 
