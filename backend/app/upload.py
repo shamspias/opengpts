@@ -110,6 +110,7 @@ index_schema = {
 
 
 def _get_openai_embedded_model() -> OpenAIEmbeddings:
+    """Add proxy to embedded models if proxy url"""
     proxy_url = os.environ["PROXY_URL"]
     if proxy_url is not None or proxy_url != "":
         http_client = httpx.AsyncClient(proxies=proxy_url)
