@@ -76,17 +76,17 @@ class IngestRunnable(RunnableSerializable[BinaryIO, List[str]]):
         return self.assistant_id
 
     def invoke(
-        self, input: BinaryIO, config: Optional[RunnableConfig] = None
+            self, input: BinaryIO, config: Optional[RunnableConfig] = None
     ) -> List[str]:
         return self.batch([input], config)
 
     def batch(
-        self,
-        inputs: List[BinaryIO],
-        config: RunnableConfig | List[RunnableConfig] | None = None,
-        *,
-        return_exceptions: bool = False,
-        **kwargs: Any | None,
+            self,
+            inputs: List[BinaryIO],
+            config: RunnableConfig | List[RunnableConfig] | None = None,
+            *,
+            return_exceptions: bool = False,
+            **kwargs: Any | None,
     ) -> List:
         """Ingest a batch of files into the vectorstore."""
         ids = []
@@ -108,15 +108,10 @@ index_schema = {
     "tag": [{"name": "namespace"}],
 }
 
-
-
 proxy_url = os.environ["PROXY_URL"]
-if proxy_url is not None or proxy_url != "":
-    http_client = httpx.AsyncClient(proxies=proxy_url)
-    embedded = OpenAIEmbeddings(http_client=http_client)
-else:
-    embedded = OpenAIEmbeddings()
 
+http_client = httpx.AsyncClient(proxies=proxy_url)
+embedded = OpenAIEmbeddings(http_client=http_client)
 
 vstore = Redis(
     redis_url=os.environ["REDIS_URL"],
@@ -124,7 +119,6 @@ vstore = Redis(
     embedding=embedded,
     index_schema=index_schema,
 )
-
 
 ingest_runnable = IngestRunnable(
     text_splitter=RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200),
