@@ -9,6 +9,7 @@ For the time being, upload and ingestion are coupled
 from __future__ import annotations
 
 import os
+import httpx
 from typing import Any, BinaryIO, List, Optional
 
 from langchain.text_splitter import RecursiveCharacterTextSplitter, TextSplitter
@@ -106,10 +107,21 @@ class IngestRunnable(RunnableSerializable[BinaryIO, List[str]]):
 index_schema = {
     "tag": [{"name": "namespace"}],
 }
+
+
+def _get_openai_embedded_model() -> OpenAIEmbeddings:
+    proxy_url = os.environ["PROXY_URL"]
+    if proxy_url is not None or proxy_url != "":
+        http_client = httpx.AsyncClient(proxies=proxy_url)
+        return OpenAIEmbeddings(http_client=http_client)
+    else:
+        return OpenAIEmbeddings()
+
+
 vstore = Redis(
     redis_url=os.environ["REDIS_URL"],
     index_name="opengpts",
-    embedding=OpenAIEmbeddings(),
+    embedding=_get_openai_embedded_model(),
     index_schema=index_schema,
 )
 
