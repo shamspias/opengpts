@@ -18,7 +18,7 @@ Currently, there are three different architectures implemented:
 - Assistant
 - RAG
 - Chatbot
-- 
+
 See below for more details on those.
 Because this is open source, if you do not like those architectures or want to modify them, you can easily do that!
 
@@ -32,7 +32,7 @@ Because this is open source, if you do not like those architectures or want to m
 - [GPTs: a simple hosted version](https://opengpts-example-vz4y4ooboq-uc.a.run.app/)
 - [Assistants API: a getting started guide](API.md)
 
-## Quickstart
+## Quickstart without Docker
 
 ### Start the backend
 
@@ -48,19 +48,24 @@ poetry install
 
 **Set up persistence layer**
 
-The backend by default uses Redis for saving agent configurations and chat message history.
-In order to you use this, you need to a `REDIS_URL` variable.
+The backend uses Postgres for saving agent configurations and chat message history.
+In order to use this, you need to set the following environment variables:
 
 ```shell
-export REDIS_URL=...
+export POSTGRES_HOST=...
+export POSTGRES_PORT=...
+export POSTGRES_DB=...
+export POSTGRES_USER=...
+export POSTGRES_PASSWORD=...
 ```
+
+Migrations are managed with [golang-migrate](https://github.com/golang-migrate/migrate). Ensure it's installed on your machine and use `make migrate` to run all migrations. For those opting to run the project via Docker, the Dockerfile already includes golang-migrate.
 
 **Set up vector database**
 
-The backend by default also uses Redis as a vector database,
+The backend by default also uses Postgres as a vector database,
 although you can easily switch this out to use any of the 50+ vector databases in LangChain.
-If you are using Redis as a vectorstore, the above environment variable should work
-(assuming you've enabled `redissearch`)
+If you are using Postgres as a vectorstore, the above environment variables should work.
 
 **Set up language models**
 
@@ -97,10 +102,10 @@ export LANGCHAIN_API_KEY=...
 Start the backend server
 
 ```shell
-langchain serve --port=8100
+make start
 ```
 
-**2. Start the frontend**
+### Start the frontend
 
 ```shell
 cd frontend
@@ -112,7 +117,7 @@ Navigate to [http://localhost:5173/](http://localhost:5173/) and enjoy!
 
 ## Installation and Running with Docker
 
-This project supports a Docker-based setup, streamlining installation and execution. It automatically builds images for the frontend and backend and sets up Redis using docker-compose.
+This project supports a Docker-based setup, streamlining installation and execution. It automatically builds images for the frontend and backend and sets up Postgres using docker-compose.
 
 ### Quick Start
 
@@ -131,7 +136,7 @@ This project supports a Docker-based setup, streamlining installation and execut
    docker compose up
    ```
 
-   This command builds the Docker images for the frontend and backend from their respective Dockerfiles and starts all necessary services, including Redis.
+   This command builds the Docker images for the frontend and backend from their respective Dockerfiles and starts all necessary services, including Postgres.
 
 3. **Access the Application:**  
    With the services running, access the frontend at [http://localhost:5173](http://localhost:5173), substituting `5173` with the designated port number.
@@ -139,7 +144,7 @@ This project supports a Docker-based setup, streamlining installation and execut
 4. **Rebuilding After Changes:**  
    If you make changes to either the frontend or backend, rebuild the Docker images to reflect these changes. Run:
    ```
-   docker-compose up --build
+   docker compose up --build
    ```
    This command rebuilds the images with your latest changes and restarts the services.
 
